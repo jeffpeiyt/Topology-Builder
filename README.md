@@ -30,6 +30,9 @@ Limitations:
 
 Improvements under consideration:
 - Parallel device access instead of sequential
+- Graphical front-end
+- Ability to define your device naming convention at initialization
+- D3 for graphing, instead of Graphviz
 
 How to adapt it to your environment:
 - Install python
