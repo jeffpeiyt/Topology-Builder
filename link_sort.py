@@ -64,3 +64,4 @@ def link_sort(upper_limit, lower_limit, location_code, file_append):
 	
 	for line in fileinput.FileInput('data/links_sorted-%s.txt' %file_append, inplace=1):
 		line = line.replace(":","-")
+		print line,

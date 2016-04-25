@@ -80,4 +80,4 @@ for i in range (0, len(nodes)):
 
 g1.write_svg('img/topology-%s.svg' %file_append)					
 
-print "\nTopology re-generated at: \t img\\topology-%s.svg\n\n" %file_append
+print "\nTopology re-generated at: \t img/topology-%s.svg\n\n" %file_append

@@ -107,4 +107,4 @@ print (" (%s seconds Device Access Time)") % round(total_access_time,2)
 print ("Plotting time: \t\t\t%s seconds") % round(plot_time,2)
 print ("Total Execution time: \t\t%s seconds\n") % round(exec_time,2)
 
-print "Topology generated at: \t img\\topology-%s.svg\n\n" %file_append
+print "Topology generated at: \t img/topology-%s.svg\n\n" %file_append
