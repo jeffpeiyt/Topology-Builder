@@ -1,7 +1,6 @@
-# Topology-Builder
-Build network topology using CDP, LLDP
+# Network Topology Builder
 
-# This is a fully functional topology builder. The software simply automates what network administrators have done manually done for many years: use CDP and LLDP on the device CLI to find device's connected neighbors and iteratively develop a diagram of the network. 
+This is a fully functional topology builder. The software simply automates what network administrators have done manually done for many years: use CDP and LLDP on the device CLI to find device's connected neighbors and iteratively develop a diagram of the network. 
 
 Mode of Operation:
 - The device starts of with accessing a "seed" device. This is where the software starts its 'crawl' process
