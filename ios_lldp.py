@@ -1,6 +1,6 @@
 import namecheck
 
-def parser (data, current_node, nodes, cdp_nodes, accessed, file_append):
+def parser (data, current_node, cdp_nodes, file_append, output_links):
 
 	lines = data.splitlines()
 	first_line = 0
@@ -9,9 +9,6 @@ def parser (data, current_node, nodes, cdp_nodes, accessed, file_append):
 		if "Device ID" in lines[y]:
 			first_line = y
 			break
-
-	nodes_file = open ('data/nodes-%s.txt' %file_append, 'a')
-	links_file = open ('data/links-%s.txt' %file_append, 'a')	
 
 	lengths = []
 	final1 = []
@@ -32,13 +29,15 @@ def parser (data, current_node, nodes, cdp_nodes, accessed, file_append):
 			y+=1
 			continue
 
-		if (final2[0].lower() != current_node.lower()) and (final2[0].lower() not in nodes):
+		if ((final2[0].lower() != current_node.lower()) and 
+			(final2[0].lower() not in unique) and 
+			(final2[0].lower() not in cdp_nodes)):
+			
 			unique.append (final2[0].lower())		
-			nodes.append (final2[0].lower())		
 		
-		if (final2[0].lower() not in accessed) and (final2[0].lower() not in cdp_nodes):
-			links_file.write(final3)
+		if final2[0].lower() not in cdp_nodes:
+			output_links.put(final3)
 		
 		y+=1
-
+		
 	return unique

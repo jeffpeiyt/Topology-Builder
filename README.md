@@ -1,4 +1,4 @@
-# Network Topology Builder
+# Topology Builder v1.1
 
 This is a fully functional topology builder. The software simply automates what network administrators have done manually done for many years: use CDP and LLDP on the device CLI to find device's connected neighbors and iteratively develop a diagram of the network. 
 
@@ -29,7 +29,6 @@ Limitations:
 - No SNMP support
 
 Improvements under consideration:
-- Parallel device access instead of sequential
 - Graphical front-end
 - Ability to define your device naming convention at initialization
 - D3 for graphing, instead of Graphviz

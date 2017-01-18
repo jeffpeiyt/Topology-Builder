@@ -1,110 +1,189 @@
-import time
-import access
-import info
 import discover
+import info
 import layers
 import link_sort
+import multiprocessing as mp
 import node_sort
-import plot
 import plot_small
+import sys
+import time
 
-print "-----------------------------------------------------------------------------------------\n"
 
-live_update, seed_device = info.seed_device()
-upper_limit = info.upper_limit()
-lower_limit = info.lower_limit(upper_limit)
-location_code = info.location_code()
-username = info.username()
-password = info.password()
+def links_writer(output_links):
+	with open ('data/links-%s.txt' %file_append, 'a') as links_file:
+		while True:
+			text = str(output_links.get())
+			if text != 'end_crawl':
+				links_file.write(text)
+			else:
+				break
 
-script_start_time = time.time()
-file_seed_time = (time.strftime("%Y%m%d-%H%M%S"))
-file_append = username + "-" + file_seed_time
 
-accessed = []
-nodes = []
-i = 0
-exec_num = 0
-total_access_time = 0
-master_list = []
+def next_access(new_add, output_nodes, output_links):
+	global count
+	count+=1
+	next_nodes = []
+#	print "\nnew_add from next_access:", new_add, "(%d)" %count
+	
+	for i in range (0,len(new_add)):
+		if new_add[i] not in nodes:
+			nodes.append(new_add[i])
+			next_nodes.append(new_add[i])
 
-nodes.append (seed_device)
+	if len(next_nodes) > 0:
+		multi_access(next_nodes, output_nodes, output_links)
 
-accessed_file = open ('data/accessed-%s.txt' %file_append, 'a')
-accessed_file.seek(0)
-accessed_file.truncate()
 
-with open ('data/nodes-%s.txt' %file_append, 'a') as nodes_file:
-	nodes_file.seek(0)
-	nodes_file.truncate()
+def multi_access(next_nodes, output_nodes, output_links):
+	global count
 
-with open ('data/links-%s.txt' %file_append, 'a') as links_file:
-	links_file.seek(0)
-	links_file.truncate()
+	count+=1
+	processes = []
+	filtered_next_nodes = []
 
-with open ('data/links_sorted-%s.txt' %file_append, 'a') as sorted_file:
-	sorted_file.seek(0)	
-	sorted_file.truncate()
+#	print "\n\nNodes from multi_access:", nodes
+#	print "\n\tnext_nodes from multi_access:", next_nodes, "(%d)" %count
 
-while i != len(nodes):
-	node_device_type = nodes[i][nodes[i].find("-") + 1 : nodes[i].find("-") + 3]
-	node_location_code = nodes[i][0:len(location_code)]
+	# Empty queue if not already empty
+	while not output_nodes.empty():
+		output_nodes.get()
+		
+	for i in range (len(next_nodes)):
+		node_device_type = next_nodes[i][next_nodes[i].find("-") + 1 : next_nodes[i].find("-") + 3]
+		node_location_code = next_nodes[i][0:len(location_code)]
+	
+		if (node_location_code != location_code) and (location_code != 'all'):
+			continue
+		if layers.layers_dict(node_device_type) == None:
+			print "Node type not found,", next_nodes[i]
+			continue
+		
+#		print "\n\tnext_nodes from multi_access:", next_nodes[i]
+		if (int(layers.layers_dict(node_device_type)) >= int(layers.layers_dict(upper_limit)) and int(layers.layers_dict(node_device_type)) <= int(layers.layers_dict(lower_limit))):
+			filtered_next_nodes.append(next_nodes[i])
 
-	if i == 0:	
-		nodes, access_time = discover.get_ndp_output(nodes[i],nodes,accessed,username,password, file_append)
-		total_access_time = total_access_time + access_time
+	for i in range (len(filtered_next_nodes)):
+		process = mp.Process(target=discover.get_ndp_output, args=(filtered_next_nodes[i],username,password,file_append,output_nodes,output_links))
+		process.daemon=True
+		processes.append(process)
+		all_processes.append(process)
 
-	if node_location_code != location_code:	
+	text_display = "\r" + str(len(nodes)) + " devices found"
+	sys.stdout.write(text_display)
+	sys.stdout.flush()
+	
+	i=0
+	for p in processes:
+#		print filtered_next_nodes[i], p.name, "starting"
+		p.start()
 		i+=1
-		continue
+
+	# get process results from the output queue
+	results = [output_nodes.get() for p in processes]
 	
-	elif (layers.layers_dict(node_device_type) >= layers.layers_dict(upper_limit) and layers.layers_dict(node_device_type) <= layers.layers_dict(lower_limit) and  i > 0):
+	for j in range (0,len(results)):
+#		print "\n\nResults:", j, results[j], len(results), len(results[j])
+		if len(results[j]) > 0:
+			next_access(results[j],output_nodes,output_links)
 
-		nodes, access_time = discover.get_ndp_output(nodes[i],nodes,accessed,username,password, file_append)
-		total_access_time = total_access_time + access_time
-	elif i > 0:
+	text_display = "\r" + str(len(nodes)) + " devices found"
+	sys.stdout.write(text_display)
+	sys.stdout.flush()
 
-		accessed_file.write(nodes[i] + "\tskipped" + "\n")
-		i+=1
-		continue
+
+# Don't run the below, it doesn't work
+# The above (working) method gets all the results from the queue before spawning new processes based on the results
+# The below (non-working) method spawns processes as soon as it reads data from the queue
+			
+#----------------------------------------------------------------			
+	# i=0	
+	# for p in processes:
+		# result = output.get()
+# #		print p.name, len(result), p.is_alive(), "\n"
+# #		p.join()
+		# if len(result) > 0:
+			# next_access(result,accessed,nodes,output)
+		# i+=1
+#----------------------------------------------------------------			
+
+def main():
+	output_nodes = mp.Queue()
+	output_links = mp.Queue()
+
+	script_start_time = time.time()												# Start time
+
+	#----------------------------------------------------------------				
+	process = mp.Process(target=links_writer, args=(output_links,))				# Spawn 'links_writer' process
+	#process.daemon = True											# If this process is daemon, writing to file doesn't work
+	process.start()
+		
+	print "\n"
+	#----------------------------------------------------------------				
+	next_access([seed_device], output_nodes, output_links)	# Start crawl from seed device
+
+	i = 0
+#	print "\nTotal # of processes:", len(all_processes)
+	while i < len (all_processes):									# Ensure all processes have shut down
+#		print "process number", i, all_processes[i].is_alive()
+		if all_processes[i].is_alive() == False:
+			i+=1
 	
-	i+=1
+	output_links.put('end_crawl')									# End crawl: signal to 'links_writer' to release file
+	#----------------------------------------------------------------				
+
+	with open ('data/nodes-%s.txt' %file_append, 'a') as nodes_file:
+		for i in range (0, len(nodes)):
+			nodes_file.write(nodes[i] + "\n")
+
+	nodes_dict = node_sort.node_sort(upper_limit,lower_limit, location_code, file_append)
 	
-	if live_update == 'y':
-		node_sort.node_sort(upper_limit, lower_limit, location_code, file_append)
-		link_sort.link_sort(upper_limit, lower_limit, location_code, file_append)
-		plot.plot(upper_limit, lower_limit, location_code)
+	lengths = [len(v) for v in nodes_dict.values()]
+	for i in nodes_dict:
+		for j in nodes_dict[i]:
+			nodes_discovered.append(j)			
 
-print "\n---------------------------------------------------------------------------------------------------------------\n"
-				
-with open ('data/nodes-%s.txt' %file_append, 'a') as nodes_file:
-	for i in range (0, len(nodes)):
-		nodes_file.write(nodes[i] + "\n")
+	print "\n\n", len(nodes_discovered), "nodes discovered:", ', '.join(nodes_discovered), "\n\n"
+	
+	#----------------------------------------------------------------			
+	print "Sorting links..."
+	link_sort.link_sort(upper_limit, lower_limit, location_code, file_append)
+	#----------------------------------------------------------------			
+	data_time = time.time() - script_start_time
+	#----------------------------------------------------------------			
+	print "Plotting..."
+	plot_time_start = time.time()
+	plot_small.plot(upper_limit, lower_limit, location_code, file_append, interface_labels, graph_type)
+	plot_time = time.time() - plot_time_start
+	#----------------------------------------------------------------			
 
-nodes_dict = node_sort.node_sort(upper_limit,lower_limit, location_code, file_append)
+	exec_time = time.time() - script_start_time
 
-lengths = [len(v) for v in nodes_dict.values()]
-print "%d nodes discovered:" %sum(lengths),
-for i in nodes_dict:
-	for j in nodes_dict[i]:
-		print j,",",
+	print ("\nData Collection and Analysis time: \t%0.2f seconds") % data_time
+	print ("Plotting time: \t\t\t\t%0.2f seconds") % plot_time
+	print ("Total Execution time: \t\t\t%0.2f seconds\n") % exec_time
+
+	print "Topology generated at:\t\t\thttp://phx1-nms-1.net.ebay.com/img/topology-%s.svg\n\n" %file_append
 
 
-print "\n\nSorting links..."
-link_sort.link_sort(upper_limit, lower_limit, location_code, file_append)
+if __name__ == '__main__':
+	info.banner()                                                          
+	seed_device = info.seed_device()
+	upper_limit = info.upper_limit()
+	lower_limit = info.lower_limit(upper_limit)
+	location_code = info.location_code()
+	graph_type = info.graph_type()
+	interface_labels = 'n'
+	username, password, max_auth_tries = info.auth_check(seed_device)
 
-data_time = time.time() - script_start_time
+	if max_auth_tries is True:
+		print "\nAuthentication failed after 3 attempts. Exiting...\n"
+		sys.exit()
 
-print "Plotting...\n"
-plot_time_start = time.time()
-plot_small.plot(upper_limit, lower_limit, location_code, file_append)
-plot_time = time.time() - plot_time_start
+	file_seed_time = (time.strftime("%Y%m%d-%H%M%S"))
+	file_append = username + "-" + file_seed_time
+	nodes = []
+	nodes_discovered = []
+	all_processes = []
+	count = 0
 
-exec_time = time.time() - script_start_time
-
-print ("Data Collection and Analysis time: \t%s seconds") % round(data_time,2), 
-print (" (%s seconds Device Access Time)") % round(total_access_time,2)
-print ("Plotting time: \t\t\t%s seconds") % round(plot_time,2)
-print ("Total Execution time: \t\t%s seconds\n") % round(exec_time,2)
-
-print "Topology generated at: \t img/topology-%s.svg\n\n" %file_append
+	main()

@@ -1,6 +1,6 @@
 import namecheck
 
-def parser (data, current_node, nodes, accessed, file_append):
+def parser (data, current_node, file_append, output_links):
 	
 	lines = data.splitlines()
 	first_line = 0
@@ -10,15 +10,12 @@ def parser (data, current_node, nodes, accessed, file_append):
 			first_line = y
 			break
 
-	nodes_file = open ('data/nodes-%s.txt' %file_append, 'a')
-	links_file = open ('data/links-%s.txt' %file_append, 'a')
-
 	lengths = []
 	final1 = []
 	unique = []
 	y = first_line + 1
 
-	while y < len(lines)-1:
+	while y < len(lines):
 		delimited_line = lines[y].split()
 		final1 = delimited_line
 		
@@ -36,13 +33,11 @@ def parser (data, current_node, nodes, accessed, file_append):
 			y+=1
 			continue
 			
-		if (final2[2].lower() != current_node.lower()) and (final2[2].lower() not in nodes):
-			unique.append (final2[2].lower())		
-			nodes.append (final2[2].lower())		
+		output_links.put(final3)
 		
-		if (final2[2].lower() not in accessed):
-			links_file.write(final3)
+		if (final2[2].lower() != current_node.lower()) and (final2[2].lower() not in unique):
+			unique.append (final2[2].lower())					
 		
 		y+=1
-
+		
 	return unique

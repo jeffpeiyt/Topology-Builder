@@ -1,6 +1,6 @@
 import namecheck
 
-def parser (data, current_node, nodes, accessed, file_append):
+def parser (data, current_node, file_append, output_links):
 
 	lines = data.splitlines()	
 
@@ -10,9 +10,6 @@ def parser (data, current_node, nodes, accessed, file_append):
 		if "Port" in lines[y]:
 			first_line = y+1
 			break
-
-	nodes_file = open ('data/nodes-%s.txt' %file_append, 'a')
-	links_file = open ('data/links-%s.txt' %file_append, 'a')
 
 	lengths = []
 	final1 = []
@@ -33,13 +30,11 @@ def parser (data, current_node, nodes, accessed, file_append):
 			y+=1
 			continue
 
-		if (final2[1].lower() != current_node.lower()) and (final2[1].lower() not in nodes):
-			unique.append (final2[1].lower())
-			nodes.append (final2[1].lower())
-		
-		if (final2[1].lower() not in accessed):
-			links_file.write(final3)
-		
-		y+=1
+		output_links.put(final3)
 
+		if (final2[1].lower() != current_node.lower()) and (final2[1].lower() not in unique):
+			unique.append (final2[1].lower())					
+
+		y+=1
+		
 	return unique

@@ -52,17 +52,79 @@ for i in range (0, len(nodes)):
 	list = nodes[str(layers_key)]
 
 	if len(list) != 0:
-		for k in range (0, len(list)):
-			node = pydot.Node(str(list[k]),
-							shape="record",
-							width="10.0",
-							height="2.5",
-							penwidth="10.0",
-							style="rounded, filled, bold",
-							align="center",
-							fontsize="100.0",
-							fontname="arial")
-			layer.add_node(node)			
+		if (layers_key == 'br') or (layers_key == 'xr'):
+			for k in range (0, len(list)):
+				node = pydot.Node(str(list[k]),
+								shape="record",
+								width="15.0",
+								height="4.0",
+								penwidth="10.0",
+								style="rounded, filled, bold",
+								align="center",
+								fontsize="120.0",
+								fontname="arial")
+				layer.add_node(node)
+		elif (layers_key == 'ar'):
+			for k in range (0, len(list)):
+				node = pydot.Node(str(list[k]),
+								shape="oval",
+								width="10.0",
+								height="2.5",
+								penwidth="10.0",
+								style="rounded, filled, bold",
+								align="center",
+								fontsize="100.0",
+								fontname="arial")
+				layer.add_node(node)
+		elif (layers_key == 'ec'):
+			for k in range (0, len(list)):
+				node = pydot.Node(str(list[k]),
+								shape="record",
+								width="10.0",
+								height="2.5",
+								penwidth="10.0",
+								style="rounded, filled, bold",
+								align="center",
+								fontsize="100.0",
+								fontname="arial")
+				layer.add_node(node)
+		elif (layers_key == 'ed'):
+			for k in range (0, len(list)):
+				node = pydot.Node(str(list[k]),
+								shape="record",
+								width="4.5",
+								height="2.0",
+								penwidth="2.0",
+								style="rounded, filled, bold",
+								align="center",
+								fontsize="40.0",
+								fontname="arial")
+				layer.add_node(node)
+		elif (layers_key == 'a1') or (layers_key == 'a2'):
+			for k in range (0, len(list)):
+				node = pydot.Node(str(list[k]),
+								shape="record",
+								width="0.1",
+								height="0.1",
+								penwidth="3.0",
+								color="white",
+								style="rounded, filled, bold",
+								align="center",
+								fontsize="5.0",
+								fontname="arial")
+				layer.add_node(node)
+		else:
+			for k in range (0, len(list)):
+				node = pydot.Node(str(list[k]),
+								shape="record",
+								width="10.0",
+								height="2.5",
+								penwidth="10.0",
+								style="rounded, filled, bold",
+								align="center",
+								fontsize="100.0",
+								fontname="arial")
+				layer.add_node(node)			
 	
 	g1.add_subgraph(layer)
 	

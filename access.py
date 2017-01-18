@@ -13,8 +13,9 @@ for i in range (0, len(lines)):
 	delimited = lines[i].split()
 	nos_dict.update({delimited[0]:delimited[1]})
 
-
 def ssh_ver (device,cmd,user,pw):
+
+#	print "Accessing", device
 
 	if nos_dict.get(device) != None:
 		return nos_dict.get(device)
@@ -53,67 +54,61 @@ def ssh_ver (device,cmd,user,pw):
 			return nos
 
 		except socket.gaierror, e:
-			print "\nError: Address resolution failed"
-			return ("Access Error")
-			break
+			print "\nError: Address resolution failed,", device
+			return ("SSH_Error: addr_fail")
 		except paramiko.AuthenticationException, e:
-			print "\nError: Authentication failed", e
+			print "\nError: Authentication failed,", device
 			ssh.close()
-			return ("Access Error")
-			break
+			return ("SSH_Error: auth_fail")
 		except socket.timeout, e:
-			print "\nError: SSH timeout"
+			print "\nError: SSH timeout,", device
 			ssh.close()
-			return ("Access Error")
-			break
+			return ("SSH_Error: ssh_timeout")
 		except socket.error, e:
-			print "\nError: Invalid hostname/IP address"
+			print "\nError: Invalid hostname/IP address,", device
 			ssh.close()
-			return ("Access Error")
-			break
+			return ("SSH_Error: invalid_address")
 		except paramiko.SSHException, e:
-			print "\nError: SSH Exception"
+			print "\nError: SSH Exception,", device
 			ssh.close()
-			return ("Access Error")
-			break
+			return ("SSH_Error: ssh_exception")
 		except:
-			print "\nError:"
+			print "\nError:,", device
 			ssh.close()
-			break
+			return ("SSH_Error: SSH Error")
 			
 			
 def ssh_ndp (device,cmd,user,pw):
+	timeout_value = 5
 
-	while True:
+	for i in range (3):
+#		print "Try:", i+1
 		try:
-			ssh.connect(device, username=user, password=pw, timeout=20)
+			ssh.connect(device, username=user, password=pw, timeout=timeout_value)
 			stdin, stdout, stderr = ssh.exec_command(cmd)
 			return stdout.read()			
 		except socket.gaierror, e:
-			print "\nError: Address resolution failed"
-			return ("Access Error")
-			break
+			print "\nError: Address resolution failed,", device
+			return ("SSH_Error: addr_fail")
 		except paramiko.AuthenticationException, e:
-			print "\nError: Authentication failed", e
+			print "\nError: Authentication failed,", device
 			ssh.close()
-			return ("Access Error")
-			break
+			return ("SSH_Error: auth_fail")
 		except socket.timeout, e:
-			print "\nError: SSH timeout"
+			print "\nError: SSH timeout,", device
 			ssh.close()
-			return ("Access Error")
-			break
+			timeout_value = timeout_value + 5
+			if i > 1:
+				return ("SSH_Error: ssh_timeout")
 		except socket.error, e:
-			print "\nError: Invalid hostname/IP address"
+			print "\nError: Invalid hostname/IP address,", device
 			ssh.close()
-			return ("Access Error")
-			break
+			return ("SSH_Error: invalid_address")
 		except paramiko.SSHException, e:
-			print "\nError: SSH Exception"
+			print "\nError: SSH Exception,", device
 			ssh.close()
-			return ("Access Error")
-			break
+			return ("SSH_Error: ssh_exception")
 		except:
-			print "\nError:"
+			print "\nError:,", device
 			ssh.close()
-			break
+			return ("SSH_Error: SSH Error")

@@ -1,13 +1,16 @@
 import layers
 
 names = layers.layers_list()
-valid = False
 
-def namecheck (hostname):	
+def namecheck (hostname):
+	valid = False
+
+	if hostname.count('-') > 1:
+		return valid
+
 	for j in range (0,len(names)):
 		if ("-" + names[j]) in hostname:
 			valid = True
-			break
-		else:
-			valid = False
+			return valid
+	
 	return valid
