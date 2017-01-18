@@ -91,21 +91,6 @@ def multi_access(next_nodes, output_nodes, output_links):
 	sys.stdout.flush()
 
 
-# Don't run the below, it doesn't work
-# The above (working) method gets all the results from the queue before spawning new processes based on the results
-# The below (non-working) method spawns processes as soon as it reads data from the queue
-			
-#----------------------------------------------------------------			
-	# i=0	
-	# for p in processes:
-		# result = output.get()
-# #		print p.name, len(result), p.is_alive(), "\n"
-# #		p.join()
-		# if len(result) > 0:
-			# next_access(result,accessed,nodes,output)
-		# i+=1
-#----------------------------------------------------------------			
-
 def main():
 	output_nodes = mp.Queue()
 	output_links = mp.Queue()
