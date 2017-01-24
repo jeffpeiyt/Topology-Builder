@@ -1,6 +1,6 @@
 # Topology Builder v1.1
 
-This is a fully functional topology builder. The software simply automates what network administrators have done manually done for many years: use CDP and LLDP on the device CLI to find device's connected neighbors and iteratively develop a diagram of the network. 
+This is a fully functional topology builder. The software simply automates what network administrators have done manually for many years: use CDP and LLDP on the device CLI to find the device's connected neighbors and iteratively develop a diagram of the network. 
 
 Mode of Operation:
 - The device starts of with accessing a "seed" device. This is where the software starts its 'crawl' process
@@ -16,7 +16,7 @@ Requirements for software to work:
 - Consistent naming scheme for device hostnames
 - Hierarchical network design
 
-Current parser's supported:
+Current parsers supported:
 - Cisco CatOS
 - Cisco IOS (and IOS-XE)
 - Cisco NX-OS
