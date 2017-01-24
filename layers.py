@@ -1,4 +1,3 @@
-
 def layers_dict (string):
 
 	layers_dict = {  '1':['top'],
@@ -54,4 +53,4 @@ def nodes_dict ():
 				  'access':[],
 				  'bottom':[]}
 	
-	return nodes_dict
+return nodes_dict
